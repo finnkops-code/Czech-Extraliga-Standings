@@ -22,7 +22,7 @@ jobs:
           python-version: '3.11'
 
       - name: Standen scrapen
-        run: python scraper.py
+        run: python scraper_extraliga.py
 
       - name: JSON bestand committen
         run: |
