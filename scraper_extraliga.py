@@ -116,23 +116,33 @@ def parse_standings(html):
     # Split op <h3> fase-koppen (bv. "Základní část", eventueel gevolgd door
     # play-off fases als de site die op dezelfde pagina toont).
     parts = re.split(r'<h3[^>]*>(.*?)</h3>', html, flags=re.DOTALL)
+    print(f"Debug: {len(re.findall(r'<h3', html))} <h3>-tags gevonden, {len(re.findall(r'<table', html))} <table>-tags gevonden in de opgehaalde HTML.")
+    if len(parts) < 2:
+        print("Debug: geen <h3>-fase-koppen gevonden — de opgehaalde HTML bevat waarschijnlijk niet de standen-tabel "
+              "(bv. omdat de site die pas via JavaScript ophaalt na het laden van de pagina).")
     i = 1
     while i < len(parts):
         fase_naam = clean_text(parts[i])
         rest = parts[i + 1] if i + 1 < len(parts) else ''
-        table_match = re.search(r'<table[^>]*class="table"[^>]*>(.*?)</table>', rest, re.DOTALL)
+        # Niet strikt op class="table" matchen: Bootstrap-tabellen hebben vaak
+        # meerdere classes (bv. class="table table-hover"), dus we pakken
+        # gewoon de eerstvolgende <table> na deze fase-kop.
+        table_match = re.search(r'<table\b[^>]*>(.*?)</table>', rest, re.DOTALL)
         if not table_match:
+            print(f"Debug: geen <table> gevonden direct na fase-kop '{fase_naam}'.")
             i += 2
             continue
         table_html = table_match.group(1)
         tbody_match = re.search(r'<tbody[^>]*>(.*?)</tbody>', table_html, re.DOTALL)
         rows_html = tbody_match.group(1) if tbody_match else table_html
         rows = re.findall(r'<tr[^>]*>(.*?)</tr>', rows_html, re.DOTALL)
+        print(f"Debug: fase '{fase_naam}' — {len(rows)} <tr>-rijen gevonden in de tabel.")
         fase_rijen = []
         for row in rows:
             tds_raw = re.findall(r'<td[^>]*>(.*?)</td>', row, re.DOTALL)
             # #, Tým, Zápasy, Výhry, Prohry, Skóre, Poměr, Odstup, Laatste 5
             if len(tds_raw) < 9:
+                print(f"Debug: rij overgeslagen, slechts {len(tds_raw)} <td>-cellen (verwacht 9).")
                 continue
             positie = clean_text(tds_raw[0]).rstrip('.')
             team_info = parse_team_cel(tds_raw[1])
