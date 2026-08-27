@@ -1,5 +1,176 @@
 {
-  "bijgewerkt": "2026-08-27T07:58:31Z",
+  "bijgewerkt": "2026-08-27T08:46:00Z",
   "bron": "https://www.baseball.cz/competition/table/1?season=21&league=761&type=all",
-  "standen": {}
+  "standen": {
+    "Základní část": [
+      {
+        "positie": "1",
+        "team": "Kotlářka Praha",
+        "team_logo": "https://www.baseball.cz/imgmin/data/_cache/a6fd918b3ba36ba3e84eaf42031b4427fc4dc6f4.png/w320h320ft1775648005.webp",
+        "team_link": "https://www.baseball.cz/club/default/11",
+        "g": "35",
+        "w": "26",
+        "l": "9",
+        "score": "267:181",
+        "runs_voor": "267",
+        "runs_tegen": "181",
+        "pct": "0.743",
+        "gb": "0",
+        "laatste5": [
+          "win",
+          "lose",
+          "win",
+          "win",
+          "win"
+        ]
+      },
+      {
+        "positie": "2",
+        "team": "Cardion Hroši Brno",
+        "team_logo": "https://www.baseball.cz/imgmin/data/_cache/288f9e11cce69e4538b059f5e5fa295effec7c04.png/w320h320ft1775647961.webp",
+        "team_link": "https://www.baseball.cz/club/default/29",
+        "g": "35",
+        "w": "22",
+        "l": "13",
+        "score": "195:143",
+        "runs_voor": "195",
+        "runs_tegen": "143",
+        "pct": "0.629",
+        "gb": "4",
+        "laatste5": [
+          "win",
+          "lose",
+          "lose",
+          "win",
+          "win"
+        ]
+      },
+      {
+        "positie": "3",
+        "team": "Draci Brno",
+        "team_logo": "https://www.baseball.cz/imgmin/data/_cache/11aaea8ed3dd7591455dd0c7dc6597e5ff201ab8.png/w320h320ft1775647961.webp",
+        "team_link": "https://www.baseball.cz/club/default/4",
+        "g": "35",
+        "w": "21",
+        "l": "14",
+        "score": "243:177",
+        "runs_voor": "243",
+        "runs_tegen": "177",
+        "pct": "0.600",
+        "gb": "5",
+        "laatste5": [
+          "win",
+          "lose",
+          "win",
+          "lose",
+          "lose"
+        ]
+      },
+      {
+        "positie": "4",
+        "team": "Eagles Praha",
+        "team_logo": "https://www.baseball.cz/imgmin/data/_cache/97a385b47684ba3aec9f488b0278d1a50c2eafa9.png/w320h320ft1775648005.webp",
+        "team_link": "https://www.baseball.cz/club/default/6",
+        "g": "35",
+        "w": "19",
+        "l": "16",
+        "score": "193:182",
+        "runs_voor": "193",
+        "runs_tegen": "182",
+        "pct": "0.543",
+        "gb": "7",
+        "laatste5": [
+          "lose",
+          "win",
+          "lose",
+          "lose",
+          "lose"
+        ]
+      },
+      {
+        "positie": "5",
+        "team": "Třebíč Nuclears",
+        "team_logo": "https://www.baseball.cz/imgmin/data/_cache/618c3cb960587f124fe42b70864540598d451958.png/w320h320ft1775647961.webp",
+        "team_link": "https://www.baseball.cz/club/default/34",
+        "g": "35",
+        "w": "18",
+        "l": "17",
+        "score": "208:197",
+        "runs_voor": "208",
+        "runs_tegen": "197",
+        "pct": "0.514",
+        "gb": "8",
+        "laatste5": [
+          "win",
+          "win",
+          "win",
+          "lose",
+          "lose"
+        ]
+      },
+      {
+        "positie": "6",
+        "team": "Sokol Hluboká",
+        "team_logo": "https://www.baseball.cz/imgmin/data/_cache/8dc19f4db3ed93d87e87b4ab86ffa83a340364f4.png/w320h320ft1775648005.webp",
+        "team_link": "https://www.baseball.cz/club/default/17",
+        "g": "35",
+        "w": "16",
+        "l": "19",
+        "score": "195:185",
+        "runs_voor": "195",
+        "runs_tegen": "185",
+        "pct": "0.457",
+        "gb": "10",
+        "laatste5": [
+          "lose",
+          "lose",
+          "lose",
+          "win",
+          "win"
+        ]
+      },
+      {
+        "positie": "7",
+        "team": "Arrows Ostrava",
+        "team_logo": "https://www.baseball.cz/imgmin/data/_cache/9f8c3d8e6e2a8d6d43b5a4abf6c04dae09248d51.png/w320h320ft1775648005.webp",
+        "team_link": "https://www.baseball.cz/club/default/1",
+        "g": "35",
+        "w": "11",
+        "l": "24",
+        "score": "173:239",
+        "runs_voor": "173",
+        "runs_tegen": "239",
+        "pct": "0.314",
+        "gb": "15",
+        "laatste5": [
+          "win",
+          "win",
+          "lose",
+          "win",
+          "lose"
+        ]
+      },
+      {
+        "positie": "8",
+        "team": "SaBaT Praha",
+        "team_logo": "https://www.baseball.cz/imgmin/data/_cache/84b59e3e5ddc03b15499f62655bb0f02ed9c6f46.png/w320h320ft1775648005.webp",
+        "team_link": "https://www.baseball.cz/club/default/10",
+        "g": "35",
+        "w": "7",
+        "l": "28",
+        "score": "116:286",
+        "runs_voor": "116",
+        "runs_tegen": "286",
+        "pct": "0.200",
+        "gb": "19",
+        "laatste5": [
+          "lose",
+          "lose",
+          "win",
+          "lose",
+          "win"
+        ]
+      }
+    ]
+  }
 }
