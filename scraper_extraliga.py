@@ -6,25 +6,35 @@ import urllib.error
 import urllib.request
 from datetime import datetime, timezone
 
-URL = "https://stats.baseball.cz/en/events/extraliga-2026/standings"
+# stats.baseball.cz blokkeert sinds kort alle automatisch verkeer met een
+# kale 403 (bevestigd op meerdere pagina's, ook de homepage — dus geen
+# pagina-specifiek probleem maar een site-brede bot-blokkade). Deze scraper
+# is daarom overgezet naar www.baseball.cz, dat dezelfde standen toont via
+# een normale, makkelijk te parsen HTML-tabel.
+#
+# LET OP: "season" en "league" in de URL zijn interne ID's van de site zelf,
+# geen jaartallen. Ze moeten waarschijnlijk elk seizoen handmatig worden
+# bijgewerkt zodra de bond een nieuw seizoen aanmaakt — anders blijft dit
+# de standen van seizoen 21 tonen. Controleer op www.baseball.cz onder de
+# juiste competitie welke season/league-waarden er in de URL staan.
+BASE_URL = "https://www.baseball.cz"
+URL = "https://www.baseball.cz/competition/table/1?season=21&league=761&type=all"
 
-# Volledige, "echte-browser" header-set. De site blokkeert sinds kort blijkbaar
-# verkeer dat niet als een gewone Chrome-request oogt (o.a. GitHub Actions- en
-# andere datacenter-IP's krijgen nu een kale 403 op elke pagina, ook de
-# homepage). Deze headers zijn het meest realistische wat met alleen de
-# standaardbibliotheek (urllib) te doen is; als de blokkade op IP-reputatie
-# zit i.p.v. op headers, lost dit het niet volledig op — zie de toelichting
-# in het chatbericht.
+# LET OP: www.baseball.cz sluit dit pad uit in robots.txt (het is bedoeld
+# als "geen bots"-verzoek, geen technische blokkade — urllib handhaaft dit
+# niet automatisch). Dit is een bewuste keuze van de klant om toch te
+# scrapen; hou er rekening mee dat de site dit in de toekomst alsnog
+# technisch kan gaan blokkeren, net als stats.baseball.cz deed.
 HEADERS = {
     "User-Agent": (
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
         "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
     ),
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
-    "Accept-Language": "en-US,en;q=0.9",
+    "Accept-Language": "en-US,en;q=0.9,cs;q=0.8",
     "Accept-Encoding": "gzip, deflate",
     "Connection": "keep-alive",
-    "Referer": "https://stats.baseball.cz/",
+    "Referer": "https://www.baseball.cz/",
     "Sec-Fetch-Dest": "document",
     "Sec-Fetch-Mode": "navigate",
     "Sec-Fetch-Site": "same-origin",
@@ -70,57 +80,90 @@ def fetch_html(url, pogingen=3):
     raise RuntimeError("fetch_html: onbekende fout zonder resultaat")
 
 
-def clean_team_name(text):
-    """Strip the 3-letter team code prefix (e.g. 'HRO Hroši' → 'Hroši')."""
-    text = re.sub(r'\s+', ' ', text).strip()
-    text = re.sub(r'^[A-Z]{2,4}\s+', '', text)
-    return text.strip()
+def clean_text(html_fragment):
+    """Alle tags verwijderen en witruimte normaliseren."""
+    tekst = re.sub(r'<[^>]+>', '', html_fragment)
+    return re.sub(r'\s+', ' ', tekst).strip()
+
+
+def maak_absoluut(pad):
+    if not pad:
+        return ''
+    if pad.startswith('http://') or pad.startswith('https://'):
+        return pad
+    return BASE_URL + pad
+
+
+def parse_team_cel(team_html):
+    """Cel met <a href="/club/default/{id}"><img src="...">Teamnaam</a>."""
+    href_match = re.search(r'href="([^"]+)"', team_html)
+    img_match = re.search(r'<img[^>]+src="([^"]+)"', team_html)
+    club_id_match = re.search(r'/club/default/(\d+)', team_html)
+    return {
+        "team":       clean_text(team_html),
+        "team_link":  maak_absoluut(href_match.group(1)) if href_match else '',
+        "team_logo":  maak_absoluut(img_match.group(1)) if img_match else '',
+        "club_id":    club_id_match.group(1) if club_id_match else '',
+    }
+
+
+def parse_laatste5_cel(cel_html):
+    return re.findall(r'<li class="(win|lose)"', cel_html)
 
 
 def parse_standings(html):
     result = {}
-    # Split on <h3> phase headers
+    # Split op <h3> fase-koppen (bv. "Základní část", eventueel gevolgd door
+    # play-off fases als de site die op dezelfde pagina toont).
     parts = re.split(r'<h3[^>]*>(.*?)</h3>', html, flags=re.DOTALL)
     i = 1
     while i < len(parts):
-        fase_naam = re.sub(r'<[^>]+>', '', parts[i]).strip()
+        fase_naam = clean_text(parts[i])
         rest = parts[i + 1] if i + 1 < len(parts) else ''
-        table_match = re.search(r'<table[^>]*>(.*?)</table>', rest, re.DOTALL)
+        table_match = re.search(r'<table[^>]*class="table"[^>]*>(.*?)</table>', rest, re.DOTALL)
         if not table_match:
             i += 2
             continue
         table_html = table_match.group(1)
-        rows = re.findall(r'<tr[^>]*>(.*?)</tr>', table_html, re.DOTALL)
+        tbody_match = re.search(r'<tbody[^>]*>(.*?)</tbody>', table_html, re.DOTALL)
+        rows_html = tbody_match.group(1) if tbody_match else table_html
+        rows = re.findall(r'<tr[^>]*>(.*?)</tr>', rows_html, re.DOTALL)
         fase_rijen = []
         for row in rows:
             tds_raw = re.findall(r'<td[^>]*>(.*?)</td>', row, re.DOTALL)
-            tds = [re.sub(r'<[^>]+>', '', td).strip() for td in tds_raw]
-            tds = [re.sub(r'\s+', ' ', td).strip() for td in tds]
-            if len(tds) < 5:
+            # #, Tým, Zápasy, Výhry, Prohry, Skóre, Poměr, Odstup, Laatste 5
+            if len(tds_raw) < 9:
                 continue
-            positie = tds[0] if tds[0] else '-'
-            # Find team name (first cell with letters)
-            team = ''
-            team_idx = -1
-            for j in range(1, len(tds)):
-                if re.search(r'[A-Za-z]', tds[j]):
-                    team = clean_team_name(tds[j])
-                    team_idx = j
-                    break
-            if not team or team_idx == -1:
+            positie = clean_text(tds_raw[0]).rstrip('.')
+            team_info = parse_team_cel(tds_raw[1])
+            if not team_info["team"]:
                 continue
-            # Numbers follow the team name cell
-            cijfers = [c for c in tds[team_idx + 1:] if c != '']
-            if len(cijfers) < 3:
-                continue
+            gespeeld = clean_text(tds_raw[2])
+            winst    = clean_text(tds_raw[3])
+            verlies  = clean_text(tds_raw[4])
+            score    = clean_text(tds_raw[5])
+            pct      = clean_text(tds_raw[6])
+            gb       = clean_text(tds_raw[7])
+            laatste5 = parse_laatste5_cel(tds_raw[8])
+            runs_voor, runs_tegen = '', ''
+            if ':' in score:
+                links, _, rechts = score.partition(':')
+                if links.strip().isdigit() and rechts.strip().isdigit():
+                    runs_voor, runs_tegen = links.strip(), rechts.strip()
             rij = {
-                "positie": positie,
-                "team":    team,
-                "w":       cijfers[0] if len(cijfers) > 0 else '-',
-                "l":       cijfers[1] if len(cijfers) > 1 else '-',
-                "t":       cijfers[2] if len(cijfers) > 2 else '-',
-                "pct":     cijfers[3] if len(cijfers) > 3 else '-',
-                "gb":      cijfers[4] if len(cijfers) > 4 else '-',
+                "positie":     positie,
+                "team":        team_info["team"],
+                "team_logo":   team_info["team_logo"],
+                "team_link":   team_info["team_link"],
+                "g":           gespeeld,
+                "w":           winst,
+                "l":           verlies,
+                "score":       score,
+                "runs_voor":   runs_voor,
+                "runs_tegen":  runs_tegen,
+                "pct":         pct,
+                "gb":          gb,
+                "laatste5":    laatste5,
             }
             fase_rijen.append(rij)
         if fase_rijen:
