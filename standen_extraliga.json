@@ -1,5 +1,5 @@
 {
-  "bijgewerkt": "2026-09-19T14:04:45Z",
+  "bijgewerkt": "2026-09-19T17:38:48Z",
   "bron": "https://www.baseball.cz/competition/table/1?season=21&league=761&type=all",
   "standen": {
     "Základní část": [
@@ -18,9 +18,9 @@
         "gb": "0",
         "laatste5": [
           "lose",
+          "win",
+          "win",
           "lose",
-          "win",
-          "win",
           "lose"
         ]
       },
@@ -39,9 +39,9 @@
         "gb": "4",
         "laatste5": [
           "win",
+          "lose",
+          "lose",
           "win",
-          "lose",
-          "lose",
           "win"
         ]
       },
@@ -122,11 +122,11 @@
         "pct": "0.457",
         "gb": "10",
         "laatste5": [
-          "win",
           "lose",
           "win",
           "win",
-          "win"
+          "win",
+          "lose"
         ]
       },
       {
@@ -165,10 +165,10 @@
         "gb": "19",
         "laatste5": [
           "lose",
-          "lose",
           "win",
           "lose",
-          "lose"
+          "lose",
+          "win"
         ]
       }
     ]
